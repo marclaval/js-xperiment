@@ -11,4 +11,4 @@ Demo website: http://mlaval.github.io/js-xperiment/www/
 - install local npm modules: `npm install`
 
 ### Running local server
-Run `grunt` to start a local server, and then go to http://localhost:8080/
+Run `grunt` to start a local server, and then go to [http://localhost:8080/](http://localhost:8080/)

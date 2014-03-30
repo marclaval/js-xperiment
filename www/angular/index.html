@@ -7,7 +7,13 @@
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
         <title>JS Xperiment - Angular</title>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
-        <script src="js/controller.js"></script>
+        <script>
+            var myApp = angular.module('MyApp', []);
+
+            myApp.controller('MyCtrl', function ($scope) {
+              $scope.name = "Change me";
+            });
+        </script>
     </head>
     <body ng-controller="MyCtrl">
         <div class="container">
