@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="./common/Flat-UI/css/flat-ui.css">
+        <link rel="stylesheet" href="./common/js-experiment.css">
+        <title>JS Xperiment - Mockup</title>
+        <script type="text/javascript">
+        var isEditOn = false;
+        var editedItem = null;
+        function goNextOrEdit(event) {
+            if (!isEditOn) {
+                var loading = document.getElementById('loading');
+                loading.style.display = "block";
+                setTimeout(function() {
+                    loading.style.display = "none";
+                    window.location = "list.html";
+                }, 1000);
+            }
+            else {
+                endEdition();
+                if (event.target.parentElement.children[1]) {
+                    event.target.style.display = "none";
+                    event.target.parentElement.children[1].style.display = "inline-block";
+                    editedItem = event.target.parentElement;
+                }
+                else {
+                    alert('Edition not possible for this part of the mockup');
+                }
+            }
+        }
+        function endEdition() {
+            if (editedItem) {
+                editedItem.children[0].style.display = "block";
+                editedItem.children[1].style.display = "none";
+                editedItem = null;
+            }
+        }
+        function goPrevious() {
+            window.location = "index.html";
+        }
+        function onEdit() {
+            var editButton = document.getElementById('editButton');
+            isEditOn = !isEditOn;
+            if (isEditOn) {
+                editButton.innerHTML = "Save";    
+            }
+            else {
+                endEdition();
+                editButton.innerHTML = "Edit";
+            }
+            var items = document.querySelectorAll(".fui-cross");
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                item.style.display = isEditOn ? "block" : "none";
+            }
+            
+        }
+        function createItem() {
+            onEdit();
+            editedItem = document.getElementById('newItem');
+            editedItem.style.display = "block";
+        }
+        function removeItem(event) {
+            endEdition();
+            if (event.stopPropagation) {
+                event.stopPropagation();
+            }
+            else {
+                event.cancelBubble = true;
+            }
+            event.target.parentNode.remove()
+        }
+        </script>
+    </head>
+    <body>
+        <header>
+            <button type="button" id="editButton" class="btn btn-info btn-sm toTheLeft" onclick="onEdit(event)">Edit</button>
+            <button type="button" class="btn btn-primary btn-sm toTheRight" onclick="goPrevious()">Logout</button>
+            <strong>My grocery lists</strong>
+        </header>
+        <article class="main">
+            <button type="button" class="btn btn-info btn-sm  fui-plus toTheRight" onclick="createItem()">Create list</button>
+            <h4>My lists</h4>
+            <ul>
+                <li id="newItem" style="display:none;">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="goNextOrEdit(event)" style="display:none;">
+                        <div class="fui-cross" style="display:none;" onclick="removeItem(event)"></div>
+                        New list - 
+                        <i><small>New shop</small></i>
+                    </button>
+                    <div class="editOn urgency-primary" style="display:inline-block;">
+                        <form class="form-horizontal" role="form">
+                          <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">Name</label>
+                            <div class="col-sm-10">
+                              <input type="text" class="form-control" id="inputEmail3" placeholder="List name" value="">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-2 control-label">Shop</label>
+                            <div class="col-sm-10">
+                              <input type="text" class="form-control" id="inputPassword3" placeholder="Shop name" value="">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-2 control-label">Urgency</label>
+                            <div class="col-sm-10">
+                                <div class="horizontal-radio">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="optionsRadios" id="inlineRadio1" value="option1"><span>High</span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="optionsRadios" id="inlineRadio2" value="option2"><span>Medium</span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="optionsRadios" id="inlineRadio3" value="option3" checked><span>Low</span>
+                                    </label>
+                                </div>
+                            </div>
+                          </div>
+                        </form>
+                    </div>
+                </li>
+                <li>
+                    <div type="button" class="btn btn-danger btn-lg" onclick="goNextOrEdit(event)">
+                        <div class="fui-cross" style="display:none;" onclick="removeItem(event)"></div>
+                        Supermarket - <i><small>Tesco in Houston</small></i>
+                    </div>
+                    <div class="editOn urgency-danger" style="display:none;">
+                        <form class="form-horizontal" role="form">
+                          <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">Name</label>
+                            <div class="col-sm-10">
+                              <input type="text" class="form-control" id="inputEmail3" placeholder="List name" value="Supermarket">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-2 control-label">Shop</label>
+                            <div class="col-sm-10">
+                              <input type="text" class="form-control" id="inputPassword3" placeholder="Shop name" value="Tesco in Houston">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-2 control-label">Urgency</label>
+                            <div class="col-sm-10">
+                                <div class="horizontal-radio">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="optionsRadios" id="inlineRadio1" value="option1"><span>High</span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="optionsRadios" id="inlineRadio2" value="option2"><span>Medium</span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="optionsRadios" id="inlineRadio3" value="option3"><span>Low</span>
+                                    </label>
+                                </div>
+                            </div>
+                          </div>
+                        </form>
+                    </div>
+                </li>
+                <li>
+                    <div type="button" class="btn btn-warning btn-lg" onclick="goNextOrEdit(event)">
+                        <div class="fui-cross" style="display:none;" onclick="removeItem(event)"></div>
+                        Bio shop
+                    </div>
+                </li>
+                <li>
+                    <div type="button" class="btn btn-primary btn-lg" onclick="goNextOrEdit(event)">
+                        <div class="fui-cross" style="display:none;" onclick="removeItem(event)"></div>
+                        Hiking equipment - 
+                        <i><small>Sport shop</small></i>
+                    </div>
+                </li>
+                <li>
+                    <div type="button" class="btn btn-primary btn-lg" onclick="goNextOrEdit(event)">
+                        <div class="fui-cross" style="display:none;" onclick="removeItem(event)"></div>
+                        Christmas presents
+                    </div>
+                </li>
+            </ul>
+        </article>
+        <div id="loading" class="mask">
+            <div>
+                <strong>Loading data ...</strong><br>
+                <img src="./common/loading.gif" />
+            </div>
+        </div>
+    </body>
+</html>

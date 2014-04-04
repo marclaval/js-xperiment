@@ -16,8 +16,8 @@ module.exports = function(grunt) {
         var base = grunt.config('hspserver.base');
         var ext = grunt.config('hspserver.templateExtension');
 
-        // Views can be everywhere in the public folder
-        app.set("views", path.join(base, "www"));
+        // Views can be everywhere in the folder
+        app.set("views", path.join(base, ""));
 
         // Log requests
         if (grunt.option('verbose')) {
@@ -56,7 +56,7 @@ module.exports = function(grunt) {
         });*/
 
         // Serve static files from the public folder, that is the root
-        app.use(express.static(path.join(base, "www")));
+        app.use(express.static(path.join(base, "")));
 
         grunt.log.writeln('Starting express web server on port ' + port + '.');
         app.listen(port);
