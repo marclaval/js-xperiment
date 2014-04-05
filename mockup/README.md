@@ -21,7 +21,7 @@ If the communication fails, an error message is shown to the user.
 - Clicking on 'Sign in':
     - If the credentials are valid, lists are retrieved from the server and the Main pae is displayed.
     - Otherwise, an error message is displayed.
-- Clicking the image triggers a login with default credentials.
+- Clicking the image triggers a login with default credentials: Test/Test
 
 ### Main page ###
 - Lists are always sorted by urgency status first, then by name.
@@ -53,16 +53,18 @@ The following components should be implemented:
 - Three-states switch
 
 ### Data model ###
-A list ca be represented with the following data model:
+A list can be represented with the following data model:
 ```
 {
-    id: "123456789",
+    "_id": {
+        "$oid": "5340319ee4b098054f46796f" //automatically generated
+    },
     name: "Supermarket",
     shop: "Tesco in Houston",
     urgency: "H", //L, M or H
     user: {
         name: "Test",
-        password: "fdsfadf32423fsd" //md5 string
+        password: 2603186 //hash
     },
     items: [
         {
@@ -74,3 +76,4 @@ A list ca be represented with the following data model:
     ]
 }
 ```
+For hash generation implementation and CRUD code sample, please see: https://github.com/mlaval/js-xperiment/blob/master/mockup/crud.js
