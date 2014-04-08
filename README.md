@@ -20,7 +20,7 @@ Mockups: http://mlaval.github.io/js-xperiment/mockup
 ## Technical requirements ##
 The goal is to go further than [TodoMVC](http://todomvc.com/) and to face more advanced challenges:
 - Components
-- CRUD based on remote REST API: [MongoLab](https://mongolab.com/
+- CRUD based on remote REST API: [MongoLab](https://mongolab.com/)
 - Routing
 - Packaging
 - Unit tests
@@ -32,11 +32,11 @@ The project can be phased as follows:
 ### Step 1 ###
 Implement the application in dev mode with well organised code:
 - one file per page
-- one file per component
+- one file per component  
 This version should be available on the demo website.
 
 ### Step 2 ###
-Add unit tests
+Add unit tests  
 Set up the build (CI, compilation, packaging and minification) of the application and the framework itself if possible.  
 Have it run in [Travis](https://travis-ci.org/) and publish the output on the demo website.
 

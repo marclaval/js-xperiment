@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+        <title>JS Xperiment - React</title>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.10.0/react.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.10.0/JSXTransformer.js"></script>
+    </head>
+    <body>
+        <div id="output" class="container"></div>
+        <script type="text/jsx">
+        /**
+         * @jsx React.DOM
+         */
+        var HelloWorld = React.createClass({
+            getInitialState: function() {
+                return {value: 'Change me'};
+            },
+            handleChange: function(event) {
+                this.setState({value: event.target.value});
+            },
+            render: function() {
+                var value = this.state.value;
+                return (
+                    <div>
+                        <h1>Hello React</h1>
+                        <input type="text" value={value} onChange={this.handleChange} />
+                        <div>
+                            This is a binding example: {value}!
+                        </div>
+                    </div>
+                );
+            }
+        });
+        React.renderComponent(
+            <HelloWorld />,
+            document.getElementById('output')
+        );
+        </script>
+    </body>
+</html>
