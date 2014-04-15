@@ -48,6 +48,9 @@ Add more features:
 
 ## Development
 
+The **master** branch will be kept clean ta maintain specifications and mockups.  
+Pull requests are welcome on these topics.
+
 ### Preparing your environment
 
 - install Grunt cli globally: `npm install -g grunt-cli`
