@@ -24,7 +24,7 @@ button.toTheRight {
     margin: 5px;
 }
 
-div.mask {
+.mask {
     display: none;
     position: absolute;
     top: 0;
@@ -35,7 +35,7 @@ div.mask {
     background: rgba(0,0,0,0.4);
 }
 
-div.mask > div {
+.mask > div {
     height: 150px;
     width: 200px;
     position: absolute;
@@ -187,10 +187,11 @@ label.radio-inline {
     padding-left: 0;
     text-align: center;
     padding: 0;
+    color: #FFFFFF;
 }
 
 label.radio-inline + label.radio-inline {
-    margin: 0;
+    margin: 0 0 0 2px;
 }
 
 label.radio-inline input[type="radio"] {
@@ -210,4 +211,14 @@ label.radio-inline input[type="radio"]:checked + span {
 
 .form-horizontal .radio-inline {
     padding: 0;
+}
+
+/**Display*/
+
+.notDisplayed {
+    display: none;
+}
+
+.displayed {
+    display: block;
 }
