@@ -1,0 +1,36 @@
+var klass = require("hsp/klass");
+
+//<#tsw state1="Low" state2="Medium" state3="High" value="{ctrl._state}"/>
+
+var id = 0;
+
+var ThreeStatesSwitch = klass({
+    attributes: {
+        "state1": {type: "string", defaultValue: "1", binding: "1-way"},
+        "state2": {type: "string", defaultValue: "2", binding: "1-way"},
+        "state3": {type: "string", defaultValue: "3", binding: "1-way"},
+        "value": {type: "int", defaultValue: 0, binding: "2-way"}
+    },
+    $init: function() {
+         this._id = id++;
+    },
+    changeValue: function(event) {
+        this.value = event.target.value;
+    }
+});
+
+# template threeStatesSwitch using tsw:ThreeStatesSwitch
+    <div class="horizontal-radio">
+        <label class="radio-inline">
+            <input type="radio" name="optionsRadios{tsw._id}" value="0" checked="{tsw.value == 0}" onchange="{tsw.changeValue(event)}"><span>{tsw.state1}</span>
+        </label> 
+        <label class="radio-inline">
+            <input type="radio" name="optionsRadios{tsw._id}" value="1" checked="{tsw.value == 1}" onchange="{tsw.changeValue(event)}"><span>{tsw.state2}</span>
+        </label> 
+        <label class="radio-inline">
+            <input type="radio" name="optionsRadios{tsw._id}" value="2" checked="{tsw.value == 2}" onchange="{tsw.changeValue(event)}"><span>{tsw.state3}</span>
+        </label>
+    </div>
+# /template
+
+module.exports = threeStatesSwitch;

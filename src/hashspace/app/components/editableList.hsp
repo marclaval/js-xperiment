@@ -1,0 +1,24 @@
+var klass = require("hsp/klass");
+
+
+var EditableList = klass({
+    attributes: {
+        "editOn": {type: "boolean", defaultValue: false, binding: "1-way"},
+        "data": {type: "object", defaultValue: {}, binding: "2-way"},
+        "onDataChange": {type: "callback"},
+        "itemCpt": {type: "object", binding: "none"},
+        "itemTpl": {type: "object", binding: "none"}
+    },
+    $init: function() {
+
+    }
+});
+
+# template editableList using el:EditableList
+    {let myList = el.data}
+    {foreach item in myList}
+        <#el.itemCpt data="{item}" itemTpl="{el.itemTpl}" />
+    {/foreach}
+# /template
+
+module.exports = editableList;

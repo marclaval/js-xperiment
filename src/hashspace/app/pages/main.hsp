@@ -1,0 +1,75 @@
+var klass = require("hsp/klass");
+var crud = require("./../utils/crud");
+var editableList = require("./../components/editableList.hsp");
+var editableItem = require("./../components/editableItem.hsp");
+
+/*** Item component displayed in the list***/
+var Item = klass({
+    attributes: {
+        "item": {type: "object", defaultValue: {}, binding: "2-way"}
+    }
+});
+
+# template oneItem using i:Item
+    <li>
+        <div type="button" class="{'btn', 'btn-danger':i.item.urgency==="H", 'btn-warning':i.item.urgency==="M", 'btn-primary':i.item.urgency==="L", 'btn-lg'}" onclick="goNextOrEdit(event)">
+            <div class="{'fui-cross', 'notDisplayed':!ctrl._isEditOn}" onclick="removeItem(event)"></div>
+            {i.item.name} 
+            {if i.item.shop && i.item.shop != ""}
+                - <i><small>{i.item.shop}</small></i>
+            {/if}
+        </div>
+    </li>
+# /template
+
+/*** Home page ***/
+var HomeController = klass({
+    $init: function() {
+        this._isMaskShown = false;
+        this._isEditOn = false;
+        this._buttonText = "Edit";
+        this._isLogged = crud.dbData.lists == null;
+
+        this._state = 1;
+    },
+    toggleEdit: function() {
+        this._isEditOn = !this._isEditOn;
+        this._buttonText = this._isEditOn ? "Save": "Edit";
+
+        this._state = 2;
+    },
+    goPrevious: function() {
+        window.location.hash = "home";
+    },
+    createItem: function() {
+        this._isEditOn = true;
+        this._buttonText = "Save";
+    },
+    dataChanged: function(data) {
+        console.log(data);
+    }
+});
+
+# template main using ctrl:HomeController
+    {let myLists = crud.dbData.lists}
+    <header>
+        <button type="button" id="editButton" class="btn btn-info btn-sm toTheLeft" onclick="{ctrl.toggleEdit()}">{ctrl._buttonText}</button>
+        <button type="button" class="btn btn-primary btn-sm toTheRight" onclick="{ctrl.goPrevious()}">Logout</button>
+        <strong>My grocery lists</strong>
+    </header>
+    <article class="main">
+        <button type="button" class="btn btn-info btn-sm  fui-plus toTheRight" onclick="{ctrl.createItem()}">Create list</button>
+        <h4>My lists</h4>
+        <ul>
+            <#editableList editOn="{ctrl._isEditOn}" data="{myLists}" onDataChange="{ctrl.dataChanged()}" itemCpt="{editableItem}" itemTpl="{oneItem}"/>
+        </ul>
+    </article>
+    <div id="loading" class="{'mask', 'displayed':ctrl._isMaskShown}">
+        <div>
+            <strong>Loading data ...</strong><br>
+            <img src="./common/loading.gif" />
+        </div>
+    </div>
+# /template
+
+module.exports = main;

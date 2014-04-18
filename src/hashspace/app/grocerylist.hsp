@@ -1,0 +1,15 @@
+var pages = [];
+var home = pages['home'] = require('./pages/home.hsp');
+pages['main'] = require('./pages/main.hsp');
+pages['list'] = require('./pages/list.hsp');
+
+# template grocerylist(data)
+    {let page = pages[data.hash || 'home']}
+    {if page}
+        <#page />
+    {else}
+        <#home />
+    {/if}
+# /template
+
+module.exports = grocerylist;

@@ -1,0 +1,17 @@
+var klass = require("hsp/klass");
+
+var EditableItem = klass({
+    attributes: {
+        "data": {type: "object", defaultValue: {}, binding: "2-way"},
+        "itemTpl": {type: "object", binding: "none"}
+    },
+    $init: function() {
+
+    }
+});
+
+# template editableItem using ei:EditableItem
+    <#ei.itemTpl item="{ei.data}"/>
+# /template
+
+module.exports = editableItem;

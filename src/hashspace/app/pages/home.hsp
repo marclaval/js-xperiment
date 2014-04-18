@@ -1,0 +1,91 @@
+var klass = require("hsp/klass");
+var crud = require("./../utils/crud");
+
+var HomeController = klass({
+    $init: function() {
+        this._name = "";
+        this._password = "";
+        this._isNameInError = false;
+        this._isPasswordInError = false;
+        this._errorMessage = "";
+        this._isMaskShown = false;
+    },
+    validateName: function() {
+        this._isNameInError = !this._name.match(/^\w+$/);
+    },
+    validatePassword: function() {
+        this._isPasswordInError = this._password === "";
+    },
+    submitForm: function (event) {
+        event.preventDefault();
+        this._errorMessage = "";
+        this.validateName();
+        this.validatePassword();
+        if (!this._isNameInError &&  !this._isPasswordInError) {
+            this._goNext();
+        }
+        else {
+            this._errorMessage = "Invalid credentials";
+        }
+    },
+    shortcut: function() {
+        this._name = "Test";
+        this._password = "Test";
+        this._goNext();
+    },
+    _goNext: function () {
+        this._isMaskShown = true;
+        crud.read(this._name, this._password, this._goNextCB);
+    },
+    _goNextCB: function(isSuccess) {
+        this._isMaskShown = false;
+        if (isSuccess) {
+            window.location.hash = "main";
+        }
+        else {
+            this._errorMessage = "Unable to contact the server, please try again.";
+        }
+    }
+});
+
+# template home using ctrl:HomeController
+    <header>
+            <strong>My grocery lists</strong>
+    </header>
+    <article class="home">
+        <div class="row">
+            <div class="col-sm-6 imageContainer">
+                <img src="./common/Flat-UI/paper-bag.svg" onclick="{ctrl.shortcut()}"/>
+            </div>
+            <div class="col-sm-6">
+                <form class="form-horizontal" role="form">
+                    <div class="{'form-group', 'has-error': ctrl._isNameInError}">
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputName" value="{ctrl._name}" placeholder="User name (only alphanumeric)" oninput="{ctrl.validateName()}"/>
+                        </div>
+                    </div>
+                    <div class="{'form-group', 'has-error': ctrl._isPasswordInError}">
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="inputPassword" value="{ctrl._password}" placeholder="Password" oninput="{ctrl.validatePassword()}"/>
+                        </div>
+                    </div>
+                    <div class="form-group has-error">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-primary" onclick="{ctrl.submitForm(event)}">Sign in</button>
+                            <label class="{'control-label', 'notDisplayed':ctrl._errorMessage === ""}" id="inputError">{ctrl._errorMessage}</label>
+                            
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </article>
+    <div id="loading" class="{'mask', 'displayed':ctrl._isMaskShown}">
+        <div>
+            <strong>Loading data ...</strong><br>
+            <img src="./common/loading.gif" />
+        </div>
+    </div>
+# /template
+
+module.exports = home;
