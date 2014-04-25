@@ -72,6 +72,9 @@ article.home .imageContainer {
 article.main {
     padding: 20px;
 }
+article.main li {
+    margin-bottom: 10px;
+}
 article.main button.btn-primary, article.main button.btn-danger, article.main button.btn-warning {
     display: block;
     width: 100%;
@@ -82,7 +85,6 @@ article.main div.form-group {
 }
 article.main div.btn {
     width: 100%;
-    margin-bottom: 10px;
 }
 
 /** List page **/

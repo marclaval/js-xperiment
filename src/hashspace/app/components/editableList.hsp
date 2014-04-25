@@ -1,23 +1,60 @@
 var klass = require("hsp/klass");
-
+var json = require("hsp/json");
 
 var EditableList = klass({
     attributes: {
         "editOn": {type: "boolean", defaultValue: false, binding: "1-way"},
-        "data": {type: "object", defaultValue: {}, binding: "2-way"},
-        "onDataChange": {type: "callback"},
+        "data": {type: "object", defaultValue: [], binding: "2-way"},
+        "onListChange": {type: "callback"},
+        "listSorter": {type: "object", binding: "none"},
         "itemCpt": {type: "object", binding: "none"},
         "itemTpl": {type: "object", binding: "none"}
     },
-    $init: function() {
-
+    $init: function () {
+        this.actions = [];
+        this.editedItem = "";
+        json.observe(this.data, this._observeCB.bind(this));
+    },
+    _observeCB: function(reports) {
+        if (reports && reports.length > 0) {
+            var report = reports[0];
+            if (report.type === "new") {
+                this.editedItem = report.newValue._id.$oid;
+            }
+        }
+    },
+    itemChanged: function(item, action, id) {
+        if (action === "delete") {
+            var index = this.data.indexOf(item);
+            this.data.splice(index, 1);
+            this.actions.push({action: action, id: id});
+        }
+        if (action === "update") {
+            var index = this.data.indexOf(item);
+            this.actions.push({action: action, id: id});
+        }
+    },
+    onEditOnChange: function () {
+        if (this.editedItem != "") {
+            if (!this.editOn) {
+                this.actions.push({action: "update", id: this.editedItem});
+                this.editedItem = "";
+            }
+        }
+        if (!this.editOn && this.actions.length > 0) {
+            if (this.listSorter) {
+                this.data.sort(this.listSorter);
+            }
+            this.onListChange({actions: this.actions, list: this.data});
+        }
+        this.actions = [];
     }
 });
 
 # template editableList using el:EditableList
-    {let myList = el.data}
-    {foreach item in myList}
-        <#el.itemCpt data="{item}" itemTpl="{el.itemTpl}" />
+    {foreach item in el.data}
+        <#el.itemCpt editOn="{el.editOn}" data="{item}" itemTpl="{el.itemTpl}" onItemChange="{el.itemChanged(event.item, event.action, event.id)}"
+            editedItem="{el.editedItem}"/>
     {/foreach}
 # /template
 

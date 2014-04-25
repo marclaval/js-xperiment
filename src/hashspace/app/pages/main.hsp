@@ -1,24 +1,103 @@
+/*** FOR DEV START ***/
+var LIST1 = {
+    _id: {$oid: 1234},
+    name: "Supermarket",
+    shop: "Tesco in Houston",
+    urgency: "H",
+    items: [
+        {name: "Corn flakes", quantity: 2, unit: "kg"},
+        {name: "Soda", quantity: 3, unit: "l"},
+        {name: "Charcoal", quantity: 3, unit: "kg"},
+        {name: "Shampoo", quantity: 1, unit: "p"},
+        {name: "JS book !!!", quantity: 1, unit: "p"}
+    ]
+};
+var LIST2 = {
+    _id: {$oid: 5678},
+    name: "Bio shop",
+    shop: "",
+    urgency: "M",
+    items: [
+        {name: "Tomatoes", quantity: 1, unit: "kg"},
+        {name: "Avocado", quantity: 6, unit: "p"},
+        {name: "Milk", quantity: 2, unit: "l"}
+    ]
+};
+/*** FOR DEV END ***/
 var klass = require("hsp/klass");
 var crud = require("./../utils/crud");
 var editableList = require("./../components/editableList.hsp");
 var editableItem = require("./../components/editableItem.hsp");
+var tsw = require("./../components/threeStatesSwitch.hsp");
 
 /*** Item component displayed in the list***/
 var Item = klass({
     attributes: {
-        "item": {type: "object", defaultValue: {}, binding: "2-way"}
+        "editOn": {type: "boolean", defaultValue: false, binding: "1-way"},
+        "data": {type: "object", defaultValue: {}, binding: "2-way"},
+        "editedItem": {type: "string", defaultValue: "", binding: "2-way"},
+        "onItemChange": {type: "callback"}
+    },
+    removeItem: function(event) {
+        if (event.stopPropagation) {
+            event.stopPropagation();
+        }
+        else {
+            event.cancelBubble = true;
+        }
+        this.onItemChange({item: this.data, action: "delete", id: this.data._id.$oid});
+    },
+    goNextOrEdit: function() {
+        if (this.editOn) {
+            this.editedItem = this.data._id.$oid;
+        }
+        else {
+            //navigate to list page
+            window.location.hash = "list/" + this.data._id.$oid;
+        }
+    },
+    onEditedItemChange: function(newValue, oldValue) {
+        if (oldValue == this.data._id.$oid) {
+            //Edition fields are removed
+            this.onItemChange({item: this.data, action: "update", id: this.data._id.$oid});
+        }
     }
 });
 
 # template oneItem using i:Item
     <li>
-        <div type="button" class="{'btn', 'btn-danger':i.item.urgency==="H", 'btn-warning':i.item.urgency==="M", 'btn-primary':i.item.urgency==="L", 'btn-lg'}" onclick="goNextOrEdit(event)">
-            <div class="{'fui-cross', 'notDisplayed':!ctrl._isEditOn}" onclick="removeItem(event)"></div>
-            {i.item.name} 
-            {if i.item.shop && i.item.shop != ""}
-                - <i><small>{i.item.shop}</small></i>
-            {/if}
-        </div>
+        {if !(i.editOn && i.editedItem == i.data._id.$oid)}
+            <div type="button" class="{'btn', 'btn-danger':i.data.urgency==="H", 'btn-warning':i.data.urgency==="M", 'btn-primary':i.data.urgency==="L", 'btn-lg'}" onclick="{i.goNextOrEdit()}">
+                <div class="{'fui-cross', 'notDisplayed':!i.editOn}" onclick="{i.removeItem(event)}"></div>
+                {i.data.name} 
+                {if i.data.shop && i.data.shop != ""}
+                    - <i><small>{i.data.shop}</small></i>
+                {/if}
+            </div>
+        {else}
+            <div class="{'editOn', 'urgency-danger':i.data.urgency==="H", 'urgency-warning':i.data.urgency==="M", 'urgency-primary':i.data.urgency==="L"}">
+                <form class="form-horizontal" role="form">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">Name</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="inputEmail3" placeholder="List name" value="{i.data.name}">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">Shop</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="inputPassword3" placeholder="Shop name" value="{i.data.shop}">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">Urgency</label>
+                    <div class="col-sm-10">
+                        <#tsw state1="{{label: "Low", value: "L"}}" state2="{{label: "Medium", value: "M"}}" state3="{{label: "High", value: "H"}}" value="{i.data.urgency}"/>
+                    </div>
+                  </div>
+                </form>
+            </div>
+        {/if}
     </li>
 # /template
 
@@ -28,42 +107,74 @@ var HomeController = klass({
         this._isMaskShown = false;
         this._isEditOn = false;
         this._buttonText = "Edit";
-        this._isLogged = crud.dbData.lists == null;
-
-        this._state = 1;
+        //crud.dbData.lists = [LIST1, LIST2]; //FOR DEV
+        this._isLogged = crud.dbData.lists !== null;
+        if (crud.dbData.lists) {
+            this._list = JSON.parse(JSON.stringify(crud.dbData.lists)).sort(this.listSorter);    
+        }
     },
     toggleEdit: function() {
         this._isEditOn = !this._isEditOn;
         this._buttonText = this._isEditOn ? "Save": "Edit";
-
-        this._state = 2;
     },
     goPrevious: function() {
         window.location.hash = "home";
     },
     createItem: function() {
+        var newItem = {
+            _id: {$oid: "tmp" + (new Date()).getTime()},
+            name: "New",
+            shop: "",
+            urgency: "L",
+            items: []
+        };
+        this._list.push(newItem);
         this._isEditOn = true;
         this._buttonText = "Save";
     },
-    dataChanged: function(data) {
-        console.log(data);
+    listChanged: function(event) {
+        console.log(event.actions);
+        console.log(event.list);
+    },
+    listSorter: function (a, b) {
+        var order = ['L','M','H'];
+        var aa = order.indexOf(a.urgency), bb = order.indexOf(b.urgency);
+        if (aa < bb)
+          return 1;
+        if (aa > bb)
+          return -1;
+        if (a.name > b.name)
+          return 1;
+        if (a.name < b.name)
+          return -1;
+        return 0;
     }
 });
 
 # template main using ctrl:HomeController
-    {let myLists = crud.dbData.lists}
-    <header>
-        <button type="button" id="editButton" class="btn btn-info btn-sm toTheLeft" onclick="{ctrl.toggleEdit()}">{ctrl._buttonText}</button>
-        <button type="button" class="btn btn-primary btn-sm toTheRight" onclick="{ctrl.goPrevious()}">Logout</button>
-        <strong>My grocery lists</strong>
-    </header>
-    <article class="main">
-        <button type="button" class="btn btn-info btn-sm  fui-plus toTheRight" onclick="{ctrl.createItem()}">Create list</button>
-        <h4>My lists</h4>
-        <ul>
-            <#editableList editOn="{ctrl._isEditOn}" data="{myLists}" onDataChange="{ctrl.dataChanged()}" itemCpt="{editableItem}" itemTpl="{oneItem}"/>
-        </ul>
-    </article>
+    {if ctrl._isLogged}
+        <header>
+            <button type="button" id="editButton" class="btn btn-info btn-sm toTheLeft" onclick="{ctrl.toggleEdit()}">{ctrl._buttonText}</button>
+            <button type="button" class="btn btn-primary btn-sm toTheRight" onclick="{ctrl.goPrevious()}">Logout</button>
+            <strong>My grocery lists</strong>
+        </header>
+        <article class="main">
+            <button type="button" class="btn btn-info btn-sm fui-plus toTheRight" onclick="{ctrl.createItem()}">Create list</button>
+            <h4>My lists</h4>
+            <ul>
+                <#editableList editOn="{ctrl._isEditOn}" data="{ctrl._list}" onListChange="{ctrl.listChanged(event)}"
+                    itemCpt="{editableItem}" itemTpl="{oneItem}" listSorter="{ctrl.listSorter}"/>
+            </ul>
+        </article>
+    {else}
+        <header>
+            <strong>My grocery lists</strong>
+        </header>
+        <article class="main">
+            <h4>You must be logged in!</h4>
+            <button type="button" class="btn btn-primary btn-sm" onclick="{ctrl.goPrevious()}">Go back to home page</button>
+        </article>
+    {/if}
     <div id="loading" class="{'mask', 'displayed':ctrl._isMaskShown}">
         <div>
             <strong>Loading data ...</strong><br>

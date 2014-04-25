@@ -1,39 +1,134 @@
+/*** FOR DEV START ***/
+var LIST1 = {
+    _id: {$oid: 1234},
+    name: "Supermarket",
+    shop: "Tesco in Houston",
+    urgency: "H",
+    items: [
+        {name: "Corn flakes", quantity: 2, unit: "kg"},
+        {name: "Soda", quantity: 3, unit: "l"},
+        {name: "Charcoal", quantity: 3, unit: "kg"},
+        {name: "Shampoo", quantity: 1, unit: "p"},
+        {name: "JS book !!!", quantity: 1, unit: "p"}
+    ]
+};
+/*** FOR DEV END ***/
+
 var klass=require("hsp/klass");
+var navMgr = require('../utils/navigationManager');
+var crud = require("./../utils/crud");
+var editableList = require("./../components/editableList.hsp");
+var editableItem = require("./../components/editableItem.hsp");
+var tsw = require("./../components/threeStatesSwitch.hsp");
+
+/*** Item component displayed in the list***/
+var Item = klass({
+    attributes: {
+        "editOn": {type: "boolean", defaultValue: false, binding: "1-way"},
+        "data": {type: "object", defaultValue: {}, binding: "2-way"},
+        "editedItem": {type: "string", defaultValue: "", binding: "2-way"},
+        "onItemChange": {type: "callback"}
+    },
+    removeItem: function(event) {
+        if (event.stopPropagation) {
+            event.stopPropagation();
+        }
+        else {
+            event.cancelBubble = true;
+        }
+        this.onItemChange({item: this.data, action: "delete"});
+    },
+    goNextOrEdit: function() {
+        if (this.editOn) {
+            this.editedItem = this.data._id.$oid;
+        }
+        else {
+            //navigate to list page
+            window.location.hash = "list/" + this.data._id.$oid;
+        }
+    },
+    onEditedItemChange: function(newValue, oldValue) {
+        if (oldValue == this.data._id.$oid) {
+            //Edition fields are removed
+            this.onItemChange({item: this.data, action: "update", id: this.data._id.$oid});
+        }
+    }
+});
+
+# template oneItem using i:Item
+    <li>   
+        <label>
+            <input type="checkbox">
+            <span>
+                <div class="{'fui-cross', 'notDisplayed':!i.editOn}" onclick="{i.removeItem(event)}"></div>
+                {i.data.name} ({i.data.quantity}{i.data.unit})
+            </span>
+        </label>
+    </li>
+# /template
 
 var ListController = klass({
+    $init: function() {
+        //crud.dbData.lists = [LIST1]; //FOR DEV
+        this._list = null;
+        if (crud.dbData.lists) {
+            for (var i = 0; i < crud.dbData.lists.length; i++) {
+                var list = crud.dbData.lists[i];
+                if (list._id.$oid == navMgr.navData.parameter) {
+                    this._list = JSON.parse(JSON.stringify(list));
 
+                }
+            }
+        }
+        this._isLogged = crud.dbData.lists !== null && this._list !== null;
+        this._filter = "All";
+        this._isEditOn = false;
+        this._buttonText = "Edit";
+    },
+    toggleEdit: function() {
+        this._isEditOn = !this._isEditOn;
+        this._buttonText = this._isEditOn ? "Save": "Edit";
+    },
+    goPrevious: function() {
+        window.location.hash = "main";
+    },
+    goHome: function() {
+        window.location.hash = "home";
+    }
 });
 
 # template list using ctrl:ListController
-    <header>
-        <button type="button" class="btn btn-info btn-sm toTheLeft">Edit</button>
-        <button type="button" class="btn btn-primary btn-sm toTheRight" onclick="goPrevious()">Close</button>
-        <strong>My grocery lists</strong>
-    </header>
-    <article class="list">
-        <button type="button" class="btn btn-info btn-sm fui-plus toTheRight" onclick="addItem()">Add</button>
-        <div class="title">
-            <h4>Supermarket</h4>
-            <span><i>Tesco in Houston</i></span>
-        </div>
-        <div>
-            <div class="horizontal-radio">
-                <label class="radio-inline">
-                    <input type="radio" name="optionsRadios" id="inlineRadio1" value="option1" checked><span>All</span>
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="optionsRadios" id="inlineRadio2" value="option2"><span>Left</span>
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="optionsRadios" id="inlineRadio3" value="option3"><span>Picked</span>
-                </label>
+    {if ctrl._isLogged}
+        <header>
+            <button type="button" class="btn btn-info btn-sm toTheLeft" onclick="{ctrl.toggleEdit()}">{ctrl._buttonText}</button>
+            <button type="button" class="btn btn-primary btn-sm toTheRight" onclick="{ctrl.goPrevious()}">Close</button>
+            <strong>My grocery lists</strong>
+        </header>
+        <article class="list">
+            <button type="button" class="btn btn-info btn-sm fui-plus toTheRight" onclick="addItem()">Add</button>
+            <div class="title">
+                <h4>{ctrl._list.name}</h4>
+                <span><i>{ctrl._list.shop}</i></span>
             </div>
-            <div class="leftItems"><small><i>n items left</i></small></div>
-        </div>
-        <ul>
-        </ul>
-        <button type="button" class="btn btn-info toTheRight">Save</button>
-    </article>
+            <div>
+                <#tsw state1="{{label: "All", value: "All"}}" state2="{{label: "Left", value: "Left"}}" state3="{{label: "Picked", value: "Picked"}}" value="{ctrl._filter}"/>
+                <div class="leftItems"><small><i>{ctrl._list.items.length} items left</i></small></div>
+            </div>
+            <ul>
+                <#editableList editOn="{ctrl._isEditOn}" data="{ctrl._list.items}" onListChange="{ctrl.listChanged(event)}"
+                    itemCpt="{editableItem}" itemTpl="{oneItem}"/>
+            </ul>
+            <button type="button" class="{'btn', 'btn-info', 'toTheRight', 'notDisplayed':!ctrl._isEditOn}" onclick="{ctrl.toggleEdit()}">Save</button>
+        </article>
+    {else}
+        <header>
+            <strong>My grocery lists</strong>
+        </header>
+        <article class="main">
+            <h4>You must be logged in!</h4>
+            <button type="button" class="btn btn-primary btn-sm" onclick="{ctrl.goHome()}">Go back to home page</button>
+        </article>
+    {/if}
 # /template
 
 module.exports = list;

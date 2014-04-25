@@ -2,16 +2,19 @@ var klass = require("hsp/klass");
 
 var EditableItem = klass({
     attributes: {
+        "editOn": {type: "boolean", defaultValue: false, binding: "1-way"},
         "data": {type: "object", defaultValue: {}, binding: "2-way"},
+        "editedItem": {type: "string", defaultValue: "", binding: "2-way"},
+        "onItemChange": {type: "callback"},
         "itemTpl": {type: "object", binding: "none"}
     },
-    $init: function() {
-
+    itemChanged: function(item, action) {
+        this.onItemChange({item: item, action: action});
     }
 });
 
 # template editableItem using ei:EditableItem
-    <#ei.itemTpl item="{ei.data}"/>
+    <#ei.itemTpl editOn="{ei.editOn}" data="{ei.data}" onItemChange="{ei.itemChanged(event.item, event.action, event.id)}" editedItem="{ei.editedItem}"/>
 # /template
 
 module.exports = editableItem;
